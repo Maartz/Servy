@@ -65,6 +65,36 @@ def handle(request) do
     %{conv | resp_body: "You're not allowed to delete 'Bear #{id}'", status: 403}
   end
 
+  # First way to handle file serving
+  # def route(%{path: "/about", method: "GET"} = conv) do
+
+  #   file =
+  #     Path.expand("../../pages", __DIR__)
+  #     |> Path.join("about.html")
+
+  #   case File.read(file) do
+  #     {:ok, content} ->
+  #       %{conv | resp_body: content, status: 200}
+
+  #     {:error, :enoent} ->
+  #       %{conv | resp_body: "Oops, something is missing here.", status: 404}
+
+  #     {:error, reason} ->
+  #       Logger.error(IO.iodata_to_binary(reason))
+  #       %{conv | resp_body: "Oops, something wrong goes here", status: 500}
+  #   end
+  # end
+
+  # Second way to handle file serving
+
+  def route(%{path: "/about", method: "GET"} = conv) do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("about.html")
+    |> File.read
+    |> handle_file(conv)
+  end
+
+
   def route(conv) do
     %{conv | resp_body: "No #{conv.path} here", status: 404}
   end
@@ -77,6 +107,19 @@ def handle(request) do
 
     #{conv.resp_body}
     """
+  end
+
+  def handle_file({:ok, content}, conv) do
+    %{conv | resp_body: content, status: 200}
+  end
+
+  def handle_file({:error, :enoent}, conv) do
+    %{conv | resp_body: "Oops, something is missing here", status: 404}
+  end
+
+  def handle_file({:error, reason}, conv) do
+    Logger.error(IO.iodata_to_binary(reason))
+    %{conv | resp_body: "Oops, somethings seems to be broken...", status: 500}
   end
 
   defp status_reason(code) do
@@ -182,6 +225,17 @@ IO.puts response
 
 request = """
 GET /bears?id=1 HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+IO.puts response
+
+request = """
+GET /about HTTP/1.1
 Host: example.com
 User-Agent: ExampleBrowser/1.0
 Accept: */*
