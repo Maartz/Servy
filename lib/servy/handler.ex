@@ -1,17 +1,16 @@
 defmodule Servy.Handler do
 
-  def handle(request) do
+  require Logger
+
+def handle(request) do
     request
     |> parse
     |> rewrite_path
-    |> log
     |> route
     |> emojify
     |> track
     |> format_response
   end
-
-  def log(conv), do: IO.inspect conv
 
   def parse(request) do
     [method, path, _] =
@@ -35,11 +34,20 @@ defmodule Servy.Handler do
   def rewrite_path(conv), do: conv
 
   def track(%{status: 404, path: path} = conv) do
-    IO.puts "Warning: #{path} does not exists"
+    IO.puts "Error: #{path} does not exists"
+    Logger.error conv.path
     conv
   end
 
-  def track(conv), do: conv
+  def track(%{method: "DELETE"} = conv) do
+    Logger.warn conv.path
+    conv
+  end
+
+  def track(conv) do
+    Logger.info conv.path
+    conv
+  end
 
   def route(%{path: "/wildthings", method: "GET"} = conv) do
     %{conv | resp_body: "Bears, Lions, Tigers ", status: 200}
