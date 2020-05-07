@@ -4,7 +4,7 @@ defmodule Servy.Handler do
   alias Servy.FileHandler
   require Logger
 
-  @pages_path Path.expand("../../pages", __DIR__)
+  @pages_path Path.expand("pages", File.cwd!)
 
 def handle(request) do
     request
