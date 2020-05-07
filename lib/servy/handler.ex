@@ -66,17 +66,18 @@ def handle(request) do
   end
 
   # First way to handle file serving
-  # def route(%{path: "/about", method: "GET"} = conv) do
+  # def route(%{path: "/bears/new", method: "GET"} = conv) do
 
   #   file =
   #     Path.expand("../../pages", __DIR__)
-  #     |> Path.join("about.html")
+  #     |> Path.join("form.html")
 
   #   case File.read(file) do
   #     {:ok, content} ->
   #       %{conv | resp_body: content, status: 200}
 
   #     {:error, :enoent} ->
+  #       Logger.warn "File missing: #{file}"
   #       %{conv | resp_body: "Oops, something is missing here.", status: 404}
 
   #     {:error, reason} ->
@@ -92,6 +93,20 @@ def handle(request) do
     |> Path.join("about.html")
     |> File.read
     |> handle_file(conv)
+  end
+
+  def route(%{path: "/bears/new", method: "GET"} = conv ) do
+    Path.expand("../../pages", __DIR__)
+    |> Path.join("form.html")
+    |> File.read
+    |> handle_file(conv)
+  end
+
+  def route(%{path: "/pages/" <> value, method: "GET"} = conv) do
+      Path.expand("../../pages", __DIR__)
+      |> Path.join(value <> ".html")
+      |> File.read
+      |> handle_file(conv)
   end
 
 
@@ -245,3 +260,37 @@ Accept: */*
 response = Servy.Handler.handle(request)
 IO.puts response
 
+request = """
+GET /bears/new HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+IO.puts response
+
+
+request = """
+GET /pages/contact HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+IO.puts response
+
+
+request = """
+GET /pages/faq HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+
+"""
+
+response = Servy.Handler.handle(request)
+IO.puts response
