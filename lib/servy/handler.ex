@@ -2,6 +2,7 @@ defmodule Servy.Handler do
   alias Servy.Plugins
   alias Servy.Parser
   alias Servy.FileHandler
+  alias Servy.Conv
   require Logger
 
   @pages_path Path.expand("pages", File.cwd!)
@@ -15,38 +16,38 @@ def handle(request) do
     |> format_response
   end
 
-  def route(%{path: "/wildthings", method: "GET"} = conv) do
+  def route(%Conv{path: "/wildthings", method: "GET"} = conv) do
     %{conv | resp_body: "Bears, Lions, Tigers ", status: 200}
   end
 
-  def route(%{path: "/bears", method: "GET"} = conv) do
+  def route(%Conv{path: "/bears", method: "GET"} = conv) do
     %{conv | resp_body: "Teddy, Smokey, Paddington", status: 200}
   end
 
-  def route(%{path: "/bears/" <> id, method: "GET"} = conv) do
+  def route(%Conv{path: "/bears/" <> id, method: "GET"} = conv) do
     %{conv | resp_body: "Bear #{id}", status: 200}
   end
 
-  def route(%{path: "/bears/" <> id, method: "DELETE"} = conv) do
+  def route(%Conv{path: "/bears/" <> id, method: "DELETE"} = conv) do
     %{conv | resp_body: "You're not allowed to delete 'Bear #{id}'", status: 403}
   end
 
 
-  def route(%{path: "/about", method: "GET"} = conv) do
+  def route(%Conv{path: "/about", method: "GET"} = conv) do
     @pages_path
     |> Path.join("about.html")
     |> File.read
     |> FileHandler.handle_file(conv)
   end
 
-  def route(%{path: "/bears/new", method: "GET"} = conv ) do
+  def route(%Conv{path: "/bears/new", method: "GET"} = conv ) do
     @pages_path
     |> Path.join("form.html")
     |> File.read
     |> FileHandler.handle_file(conv)
   end
 
-  def route(%{path: "/pages/" <> value, method: "GET"} = conv) do
+  def route(%Conv{path: "/pages/" <> value, method: "GET"} = conv) do
       @pages_path
       |> Path.join(value <> ".html")
       |> File.read
@@ -54,13 +55,13 @@ def handle(request) do
   end
 
 
-  def route(conv) do
+  def route(%Conv{} = conv) do
     %{conv | resp_body: "No #{conv.path} here", status: 404}
   end
 
-  def format_response(conv) do
+  def format_response(%Conv{} = conv) do
     """
-    HTTP/1.1 #{conv.status} #{status_reason(conv.status)}
+    HTTP/1.1 #{Conv.full_status(conv)}
     Content-Type: text/html
     Content-Lenght: #{byte_size(conv.resp_body)}
 
