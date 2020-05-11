@@ -33,6 +33,10 @@ def handle(request) do
   end
 
 
+  def route(%Conv{path: "/bears", method: "POST", params: params} = conv) do
+    %{conv | resp_body: "Create a #{params["type"]} bear named #{params["name"]}", status: 201}
+  end
+
   def route(%Conv{path: "/about", method: "GET"} = conv) do
     @pages_path
     |> Path.join("about.html")
@@ -48,10 +52,10 @@ def handle(request) do
   end
 
   def route(%Conv{path: "/pages/" <> value, method: "GET"} = conv) do
-      @pages_path
-      |> Path.join(value <> ".html")
-      |> File.read
-      |> FileHandler.handle_file(conv)
+    @pages_path
+    |> Path.join(value <> ".html")
+    |> File.read
+    |> FileHandler.handle_file(conv)
   end
 
 
@@ -69,15 +73,7 @@ def handle(request) do
     """
   end
 
-  defp status_reason(code) do
-    %{ 200 => "OK",
-      201 => "Created",
-      401 => "Unauthorized",
-      403 => "Forbidden",
-      404 => "Not Found",
-      500 => "Internal Server Error"
-    }[code]
-  end
+
 
 end
 
@@ -218,3 +214,18 @@ Accept: */*
 
 response = Servy.Handler.handle(request)
 IO.puts response
+
+request = """
+POST /bears HTTP/1.1
+Host: example.com
+User-Agent: ExampleBrowser/1.0
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 21
+
+name=Baloo&type=Brown
+"""
+
+response = Servy.Handler.handle(request)
+IO.puts response
+

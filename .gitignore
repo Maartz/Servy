@@ -24,3 +24,4 @@ servy-*.tar
 
 /.elixir_ls
 /.vscode
+/.idea
