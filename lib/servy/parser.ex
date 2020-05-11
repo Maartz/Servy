@@ -10,10 +10,21 @@ defmodule Servy.Parser do
 
     [method, path, _] = String.split(request_line, " ")
 
+    headers = parse_headers(header_lines, %{})
+
     params = parse_params(params_string)
 
-    %Conv{method: method, path: path, params: params}
+    %Conv{method: method, path: path, params: params, headers: headers}
   end
 
   def parse_params(params_string), do: params_string |> String.trim() |> URI.decode_query()
+
+  def parse_headers([head | tail], headers_map) do
+
+    [key, value] = String.split(head, ": ")
+    headers_map = Map.put(headers_map, key, value)
+    parse_headers(tail,  headers_map)
+  end
+
+  def parse_headers([], headers_map), do: headers_map
 end
