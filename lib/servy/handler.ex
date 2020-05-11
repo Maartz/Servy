@@ -32,8 +32,7 @@ def handle(request) do
     %{conv | resp_body: "You're not allowed to delete 'Bear #{id}'", status: 403}
   end
 
-
-  def route(%Conv{path: "/bears", method: "POST", params: params} = conv) do
+  def route(%Conv{path: "/bears", method: "POST", params: params, } = conv) do
     %{conv | resp_body: "Create a #{params["type"]} bear named #{params["name"]}", status: 201}
   end
 
@@ -70,6 +69,7 @@ def handle(request) do
     Content-Lenght: #{byte_size(conv.resp_body)}
 
     #{conv.resp_body}
+    \n
     """
   end
 
