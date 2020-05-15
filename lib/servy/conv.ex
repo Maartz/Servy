@@ -6,7 +6,8 @@ defmodule Servy.Conv do
   end
 
   defp status_reason(code) do
-    %{ 200 => "OK",
+    %{
+      200 => "OK",
       201 => "Created",
       401 => "Unauthorized",
       403 => "Forbidden",
@@ -14,5 +15,4 @@ defmodule Servy.Conv do
       500 => "Internal Server Error"
     }[code]
   end
-
 end

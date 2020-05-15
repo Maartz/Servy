@@ -1,0 +1,5 @@
+<h1>Show Bear</h1>
+
+<p>
+  <%= bear.name %> is a <%= bear.type %> type bear.
+</p>

@@ -13,6 +13,4 @@ defmodule Servy.FileHandler do
     Logger.error(IO.iodata_to_binary(reason))
     %{conv | resp_body: "Oops, somethings seems to be broken...", status: 500}
   end
-
-
 end
